@@ -55,7 +55,7 @@ webtalk_pn.xml
 */*/xst/
 */*/_ngo/
 */*/_xmsgs/
-*/ipcore_dir
+*/ipcore_dir/
 #SOFT
 *.pyc
 *.out
