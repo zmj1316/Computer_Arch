@@ -98,10 +98,10 @@ module datapath (
 		end
 		else if (cpu_en) begin
 			case (pc_src_ctrl)
-				PC_JUMP: inst_addr <= ????;
-				PC_JR: inst_addr <= ????;
-				PC_BEQ: inst_addr <= ????;
-				default: inst_addr <= ????;
+				PC_JUMP: inst_addr <= {inst_addr[31:28],inst_data[25:0],2'b00};
+				PC_JR: inst_addr <= data_rs;
+				PC_BEQ: inst_addr <= alu_out;
+				default: inst_addr <= inst_addr + 4;
 			endcase
 		end
 	end
@@ -116,8 +116,8 @@ module datapath (
 	always @(*) begin
 		regw_addr = inst_data[15:11];
 		case (wb_addr_src_ctrl)
-			WB_ADDR_RD: regw_addr = ????;
-			WB_ADDR_RT: regw_addr = ????;
+			WB_ADDR_RD: regw_addr = addr_rd;
+			WB_ADDR_RT: regw_addr = addr_rt;
 			WB_ADDR_LINK: regw_addr = GPR_RA;
 		endcase
 	end
@@ -144,15 +144,15 @@ module datapath (
 		opa = data_rs;
 		opb = data_rt;
 		case (exe_a_src_ctrl)
-			EXE_A_RS: opa = ????;
-			EXE_A_LINK: opa = ????;
-			EXE_A_BRANCH: opa = ????;
+			EXE_A_RS: opa = data_rs;
+			EXE_A_LINK: opa = inst_addr_next;
+			EXE_A_BRANCH: opa = inst_addr_next;
 		endcase
 		case (exe_b_src_ctrl)
-			EXE_B_RT: opb = ????;
-			EXE_B_IMM: opb = ????;
-			EXE_B_LINK: opb = ????;
-			EXE_B_BRANCH: opb = ????;
+			EXE_B_RT: opb = data_rt;
+			EXE_B_IMM: opb = data_imm;
+			EXE_B_LINK: opb = 32'h0;
+			EXE_B_BRANCH: opb = {data_imm[29:0],2'b00};
 		endcase
 	end
 	
@@ -172,8 +172,8 @@ module datapath (
 	always @(*) begin
 		regw_data = alu_out;
 		case (wb_data_src_ctrl)
-			WB_DATA_ALU: regw_data = ????;
-			WB_DATA_MEM: regw_data = ????;
+			WB_DATA_ALU: regw_data = alu_out;
+			WB_DATA_MEM: regw_data = mem_dout;
 		endcase
 	end
 	

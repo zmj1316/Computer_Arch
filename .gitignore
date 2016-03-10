@@ -60,3 +60,5 @@ webtalk_pn.xml
 *.pyc
 *.out
 *.exe
+/ex1
+/ex2

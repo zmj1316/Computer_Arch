@@ -63,7 +63,7 @@ module mips_core (
 		.A(),
 		.B(),
 		.sign_ext(),
-		.opcode(),
+		.op(),
 		.res()
 		);
 	regfile RF(
