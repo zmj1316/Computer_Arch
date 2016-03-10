@@ -34,10 +34,11 @@ module mips(
 reg [31:0] PC;
 wire [31:0] inst;
 wire [31:0] imout;
-wire [11:0]  btn_out;
+// wire [11:0]  btn_out;
 
 wire [31:0] regtest;
 
+assign debug_data = debug_addr[6]? PC:regtest;
 
 wire RegDst;
 wire ALUsrc,MemtoReg,RegWrite,MemRead,MemWrite,Branch;
@@ -69,7 +70,7 @@ reg [31:0]dis32;
 assign PC_next = Jump?{PC[31:28],inst[25:0],2'b00}:PC_3;
 ALU a(Rdata1,ALUsrc?{{16{inst[15]}},inst[15:0]}:Rdata2,inst[5:0],ALUop,zero,ALUout);
 // regfile RF(btn_in[0],inst[25:21],inst[20:16],RegDst?inst[15:11]:inst[20:16],wrdata,RegWrite,Rdata1,Rdata2);
-regfile RF(btn_out[0],inst[25:21],inst[20:16],RegDst?inst[15:11]:inst[20:16],wrdata,RegWrite,Rdata1,Rdata2,debug_addr,debug_data);
+regfile RF(debug_step,inst[25:21],inst[20:16],RegDst?inst[15:11]:inst[20:16],wrdata,RegWrite,Rdata1,Rdata2,debug_addr[4:0],regtest);
 // regfile RF(clk,switch[6:2],switch[6:2],switch[6:2],wrdata,1'b0,Rdata1,Rdata2);
 
 myram dm(.clka(clk),
