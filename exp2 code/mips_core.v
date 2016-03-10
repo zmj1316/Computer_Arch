@@ -72,6 +72,9 @@ module mips_core (
 		`ifdef DEBUG
 		.debug_addr(debug_addr[5:0]),
 		.debug_data(debug_data),
+		.debug_step(debug_step),
+		`else
+		
 		`endif
 		.inst_data_ctrl(inst_data_ctrl),
 		.pc_src_ctrl(pc_src_ctrl),

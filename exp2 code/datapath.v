@@ -11,6 +11,7 @@ module datapath (
 	`ifdef DEBUG
 	input wire [5:0] debug_addr,  // debug address
 	output wire [31:0] debug_data,  // debug data
+	input wire debug_step,
 	`endif
 	// control signals
 	output wire [31:0] inst_data_ctrl,  // instruction
@@ -173,7 +174,7 @@ module datapath (
 		regw_data = alu_out;
 		case (wb_data_src_ctrl)
 			WB_DATA_ALU: regw_data = alu_out;
-			WB_DATA_MEM: regw_data = mem_dout;
+			WB_DATA_MEM: regw_data = mem_din;
 		endcase
 	end
 	
