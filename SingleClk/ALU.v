@@ -35,6 +35,7 @@ always @(*) begin
 					6'h20:out<=A+B;
 					6'h21:out<=A+B;
 					6'h24:out<={32{A}}&{32{B}};
+					6'h25:out<=A|B;
 					6'h2a:out<={0,slt};
 					6'h2b:out<={0,sltu};
 				endcase
