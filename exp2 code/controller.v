@@ -100,8 +100,8 @@ module controller (/*AUTOARG*/
 				wb_wen = 1;
 			end
 			INST_BEQ: begin
-				pc_src = PC_BRANCH;
-				// exe_a_src = ????;
+				pc_src = PC_BEQ;
+				exe_a_src = EXE_A_BRANCH;
 				exe_b_src = EXE_B_BRANCH;
 				exe_alu_oper = EXE_ALU_ADD;
 				imm_ext = 1;
