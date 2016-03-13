@@ -150,7 +150,7 @@ module controller (/*AUTOARG*/
 				imm_ext = 1;
 				exe_b_src = EXE_B_IMM;
 				exe_alu_oper = EXE_ALU_ADD;
-				mem_wen = 0;
+				mem_wen = 1;
 			end
 			default: begin
 				unrecognized = 1;
