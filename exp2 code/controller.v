@@ -94,16 +94,23 @@ module controller (/*AUTOARG*/
 				pc_src = PC_JUMP;
 				exe_a_src = EXE_A_LINK;
 				exe_b_src = EXE_B_LINK;
-				// exe_alu_oper = ????;
+				exe_alu_oper = EXE_ALU_ADD;
 				wb_addr_src = WB_ADDR_LINK;
-				wb_data_src = WB_DATA_LINK;
+				wb_data_src = WB_DATA_ALU;
 				wb_wen = 1;
 			end
 			INST_BEQ: begin
 				pc_src = PC_BEQ;
 				exe_a_src = EXE_A_BRANCH;
 				exe_b_src = EXE_B_BRANCH;
-				exe_alu_oper = EXE_ALU_ADD;
+				exe_alu_oper = EXE_ALU_SUB;
+				imm_ext = 1;
+			end
+			INST_BNE: begin
+				pc_src = PC_BNE;
+				exe_a_src = EXE_A_BRANCH;
+				exe_b_src = EXE_B_BRANCH;
+				exe_alu_oper = EXE_ALU_SUB;
 				imm_ext = 1;
 			end
 			INST_ADDI: begin
@@ -133,7 +140,7 @@ module controller (/*AUTOARG*/
 			INST_LW: begin
 				imm_ext = 1;
 				exe_b_src = EXE_B_IMM;
-				// exe_alu_oper = ????;
+				exe_alu_oper = EXE_ALU_ADD;
 				mem_ren = 1;
 				wb_addr_src = WB_ADDR_RT;
 				wb_data_src = WB_DATA_MEM;
@@ -142,8 +149,8 @@ module controller (/*AUTOARG*/
 			INST_SW: begin
 				imm_ext = 1;
 				exe_b_src = EXE_B_IMM;
-				// exe_alu_oper = ????;
-				mem_wen = 1;
+				exe_alu_oper = EXE_ALU_ADD;
+				mem_wen = 0;
 			end
 			default: begin
 				unrecognized = 1;

@@ -11,7 +11,6 @@ module datapath (
 	`ifdef DEBUG
 	input wire [5:0] debug_addr,  // debug address
 	output wire [31:0] debug_data,  // debug data
-	input wire debug_step,
 	`endif
 	// control signals
 	output wire [31:0] inst_data_ctrl,  // instruction
@@ -99,10 +98,11 @@ module datapath (
 		end
 		else if (cpu_en) begin
 			case (pc_src_ctrl)
-				PC_JUMP: inst_addr <= {inst_addr[31:28],inst_data[25:0],2'b00};
+				PC_JUMP: inst_addr <= {inst_addr_next[31:28], inst_data[25:0], 2'b0};
 				PC_JR: inst_addr <= data_rs;
-				PC_BEQ: inst_addr <= (data_rs == data_rt) ? alu_out : inst_addr_next;
-				default: inst_addr <= inst_addr + 4;
+				PC_BEQ: inst_addr <= (alu_out==32'b0) ? (inst_addr_next + {data_imm, 2'b0}) : inst_addr_next;
+				PC_BNE: inst_addr <= (alu_out!=32'b0) ? (inst_addr_next + {data_imm, 2'b0}) : inst_addr_next;
+				default: inst_addr <= inst_addr_next;
 			endcase
 		end
 	end
@@ -147,13 +147,13 @@ module datapath (
 		case (exe_a_src_ctrl)
 			EXE_A_RS: opa = data_rs;
 			EXE_A_LINK: opa = inst_addr_next;
-			EXE_A_BRANCH: opa = inst_addr_next;
+			EXE_A_BRANCH: opa = data_rs;
 		endcase
 		case (exe_b_src_ctrl)
 			EXE_B_RT: opb = data_rt;
 			EXE_B_IMM: opb = data_imm;
 			EXE_B_LINK: opb = 32'h0;
-			EXE_B_BRANCH: opb = {data_imm[29:0],2'b00};
+			EXE_B_BRANCH: opb = data_rt;
 		endcase
 	end
 	
