@@ -94,14 +94,14 @@ module datapath (
 	
 	always @(posedge clk) begin
 		if (cpu_rst) begin
-			inst_addr <= 0;
+			inst_addr <= 32'h0;
 		end
 		else if (cpu_en) begin
 			case (pc_src_ctrl)
 				PC_JUMP: inst_addr <= {inst_addr_next[31:28], inst_data[25:0], 2'b0};
 				PC_JR: inst_addr <= data_rs;
-				PC_BEQ: inst_addr <= (alu_out==32'b0) ? (inst_addr_next + {data_imm, 2'b0}) : inst_addr_next;
-				PC_BNE: inst_addr <= (alu_out!=32'b0) ? (inst_addr_next + {data_imm, 2'b0}) : inst_addr_next;
+				PC_BEQ: inst_addr <= rs_rt_equal ? alu_out : inst_addr_next;
+				PC_BNE: inst_addr <= rs_rt_equal ? inst_addr_next : alu_out;
 				default: inst_addr <= inst_addr_next;
 			endcase
 		end
@@ -147,13 +147,13 @@ module datapath (
 		case (exe_a_src_ctrl)
 			EXE_A_RS: opa = data_rs;
 			EXE_A_LINK: opa = inst_addr_next;
-			EXE_A_BRANCH: opa = data_rs;
+			EXE_A_BRANCH: opa = inst_addr_next;
 		endcase
 		case (exe_b_src_ctrl)
 			EXE_B_RT: opb = data_rt;
 			EXE_B_IMM: opb = data_imm;
 			EXE_B_LINK: opb = 32'h0;
-			EXE_B_BRANCH: opb = data_rt;
+			EXE_B_BRANCH: opb = {data_imm,2'b00};
 		endcase
 	end
 	
