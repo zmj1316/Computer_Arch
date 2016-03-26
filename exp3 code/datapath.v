@@ -264,7 +264,7 @@ module datapath (
 		opb_exe = data_rt_exe;
 		case (exe_a_src_exe)
 			EXE_A_RS: opa_exe = data_rs_exe;
-			EXE_A_LINK: opa_exe = inst_addr_next;
+			EXE_A_LINK: opa_exe = inst_addr_next_exe;
 			EXE_A_BRANCH: opa_exe = inst_addr_next_exe;
 		endcase
 		case (exe_b_src_exe)
@@ -325,7 +325,7 @@ module datapath (
 	always @(*) begin
 		case (pc_src_mem)
 			PC_JUMP: branch_target_mem <= {inst_addr_next_mem[31:28], inst_data_mem[25:0], 2'b0};
-			PC_JR: branch_target_mem <= data_rs;
+			PC_JR: branch_target_mem <= data_rs_mem;
 			PC_BEQ: branch_target_mem <= rs_rt_equal_mem ? alu_out_mem : inst_addr_next_mem;
 			PC_BNE: branch_target_mem <= rs_rt_equal_mem ? inst_addr_next_mem : alu_out_mem;
 			default: branch_target_mem <= inst_addr_next_mem;  // will never used
@@ -362,7 +362,7 @@ module datapath (
 		regw_data_wb = alu_out_wb;
 		case (wb_data_src_wb)
 			WB_DATA_ALU: regw_data_wb = alu_out_wb;
-			WB_DATA_MEM: regw_data_wb = mem_din;
+			WB_DATA_MEM: regw_data_wb = mem_din_wb;
 		endcase
 	end
 	

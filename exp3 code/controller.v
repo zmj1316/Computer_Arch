@@ -217,7 +217,7 @@ module controller (/*AUTOARG*/
 			if (regw_addr_exe == addr_rs && wb_wen_exe) begin
 				reg_stall = 1;
 			end
-			else if (regw_addr_mem == addr_rs && mem_wen) begin
+			else if (regw_addr_mem == addr_rs && wb_wen_mem) begin
 				reg_stall = 1;
 			end
 		end
@@ -225,7 +225,7 @@ module controller (/*AUTOARG*/
 			if (regw_addr_exe == addr_rt && wb_wen_exe) begin
 				reg_stall = 1;
 			end
-			else if (regw_addr_mem == addr_rt && mem_wen) begin
+			else if (regw_addr_mem == addr_rt && wb_wen_mem) begin
 				reg_stall = 1;
 			end
 		end
