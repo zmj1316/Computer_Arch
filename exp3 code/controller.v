@@ -194,7 +194,7 @@ module controller (/*AUTOARG*/
 				exe_alu_oper = EXE_ALU_ADD;
 				mem_wen = 1;
 				rs_used = 1;
-				rt_used = 1;
+				rt_used = 0;
 			end
 			default: begin
 				unrecognized = 1;
