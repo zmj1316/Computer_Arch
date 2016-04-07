@@ -62,8 +62,9 @@ module datapath (
 	,
 	output reg wb_data_src_exe,
 	output reg wb_data_src_mem,
-	input wire [1:0] data_rs_ctrl,
-	input wire [1:0] data_rt_ctrl
+	input wire [1:0] exe_fwd_a_ctrl,
+	input wire [1:0] exe_fwd_b_ctrl
+	// , output reg [31:0] regw_data_wb
 	
 	);
 	
@@ -145,6 +146,8 @@ module datapath (
 			21: debug_data_signal <= mem_dout;
 			22: debug_data_signal <= {27'b0, regw_addr_wb};
 			23: debug_data_signal <= regw_data_wb;
+			24: debug_data_signal <= data_rt_exe;
+			25: debug_data_signal <= alu_out_wb;
 			default: debug_data_signal <= 32'hFFFF_FFFF;
 		endcase
 	end
@@ -220,6 +223,11 @@ module datapath (
 		.data_w(regw_data_wb)
 		);
 		
+
+	reg [31:0] data_rs_fwd;
+	reg [31:0] data_rt_fwd;
+	reg [1:0] fwd_a_exe;
+	reg [1:0] fwd_b_exe;
 	// EXE stage
 	always @(posedge clk) begin
 		if (exe_rst) begin
@@ -249,19 +257,21 @@ module datapath (
 			pc_src_exe <= pc_src_ctrl;
 			exe_a_src_exe <= exe_a_src_ctrl;
 			exe_b_src_exe <= exe_b_src_ctrl;
-			// data_rs_exe <= data_rs;
-			case (data_rs_ctrl)
-				0: data_rs_exe <= data_rs;
-				1: data_rs_exe <= alu_out_exe;
-				2: data_rs_exe <= alu_out_mem;
-				3: data_rs_exe <= mem_din;
+			fwd_a_exe <= exe_fwd_a_ctrl;
+			fwd_b_exe <= exe_fwd_b_ctrl;
+			// data_rs_fwd <= data_rs;
+			case (exe_fwd_a_ctrl)
+				FWD_NO: data_rs_fwd <= data_rs;
+				FWD_ALU_EXE: data_rs_fwd <= alu_out_exe;
+				// FWD_WB_MEM: data_rs_fwd <= regw_data_wb;
+				FWD_MEM: data_rs_fwd <= mem_din;
 			endcase
-			// data_rt_exe <= data_rt;
-			case (data_rt_ctrl)
-				0: data_rt_exe <= data_rt;
-				1: data_rt_exe <= alu_out_exe;
-				2: data_rt_exe <= alu_out_mem;
-				3: data_rt_exe <= mem_din;
+			// data_rt_fwd <= data_rt;
+			case (exe_fwd_b_ctrl)
+				FWD_NO: data_rt_fwd <= data_rt;
+				FWD_ALU_EXE: data_rt_fwd <= alu_out_exe;
+				// FWD_WB_MEM: data_rt_fwd <= regw_data_wb;
+				FWD_MEM: data_rt_fwd <= mem_din;
 			endcase
 			data_imm_exe <= data_imm;
 			exe_alu_oper_exe <= exe_alu_oper_ctrl;
@@ -271,9 +281,31 @@ module datapath (
 			wb_wen_exe <= wb_wen_ctrl;
 		end
 	end
-	
+
+
+	always @(*) begin
+		
+		case (fwd_a_exe)
+			// FWD_NO: data_rs_exe <= data_rs;
+			// FWD_ALU_EXE: data_rs_exe <= alu_out_mem;
+			FWD_WB_MEM: data_rs_exe <= regw_data_wb;
+			FWD_MEM: data_rs_exe <= mem_din;
+			default: data_rs_exe <= data_rs_fwd;
+		endcase
+		// data_rt_exe <= data_rt;
+		
+		case (fwd_b_exe)
+			// FWD_NO: data_rt_exe <= data_rt;
+			// FWD_ALU_EXE: data_rt_exe <= alu_out_mem;
+			FWD_WB_MEM: data_rt_exe <= regw_data_wb;
+			FWD_MEM: data_rt_exe <= mem_din;
+			default: data_rt_exe <= data_rt_fwd;
+		endcase
+	end
+
 	always @(*) begin
 		is_branch_exe <= (pc_src_exe != PC_NEXT);
+
 	end
 	
 	assign
@@ -385,5 +417,5 @@ module datapath (
 			WB_DATA_MEM: regw_data_wb = mem_din_wb;
 		endcase
 	end
-	
+
 endmodule

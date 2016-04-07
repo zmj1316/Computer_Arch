@@ -150,3 +150,10 @@ localparam
 	GPR_SP = 29,
 	GPR_FP = 30,
 	GPR_RA = 31;
+
+// forwarding 
+localparam
+	FWD_NO = 0,
+	FWD_ALU_EXE = 1,
+	FWD_WB_MEM  = 2,
+	FWD_MEM 	= 3;
