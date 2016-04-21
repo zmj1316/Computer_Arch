@@ -242,8 +242,6 @@ module datapath (
 			pc_src_exe <= 0;
 			exe_a_src_exe <= 0;
 			exe_b_src_exe <= 0;
-			data_rs_fwd <= 0;
-			data_rt_fwd <= 0;
 			data_imm_exe <= 0;
 			exe_alu_oper_exe <= 0;
 			mem_ren_exe <= 0;
