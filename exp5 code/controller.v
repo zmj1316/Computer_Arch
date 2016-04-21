@@ -54,7 +54,9 @@ module controller (/*AUTOARG*/
 	input wire wb_data_src_exe,
 	input wire wb_data_src_mem,
 	output reg [1:0]exe_fwd_a_ctrl,
-	output reg [1:0]exe_fwd_b_ctrl
+	output reg [1:0]exe_fwd_b_ctrl,
+	output reg fwd_m,
+	input wire rs_rt_equal
 	);
 	
 	`include "mips_define.vh"
@@ -141,7 +143,7 @@ module controller (/*AUTOARG*/
 				wb_wen = 1;
 			end
 			INST_BEQ: begin
-				pc_src = PC_BEQ;
+				pc_src = rs_rt_equal?PC_BRANCH:PC_NEXT;
 				exe_a_src = EXE_A_BRANCH;
 				exe_b_src = EXE_B_BRANCH;
 				exe_alu_oper = EXE_ALU_ADD;
@@ -150,7 +152,7 @@ module controller (/*AUTOARG*/
 				rt_used = 1;
 			end
 			INST_BNE: begin
-				pc_src = PC_BNE;
+				pc_src = rs_rt_equal?PC_NEXT:PC_BRANCH;
 				exe_a_src = EXE_A_BRANCH;
 				exe_b_src = EXE_B_BRANCH;
 				exe_alu_oper = EXE_ALU_ADD;
@@ -220,6 +222,7 @@ module controller (/*AUTOARG*/
 	
 	always @(*) begin
 		reg_stall = 0;
+		fwd_m=0;
 		exe_fwd_a_ctrl = FWD_NO;
 		exe_fwd_b_ctrl = FWD_NO;
 		if (rs_used && addr_rs != 0) begin
@@ -235,14 +238,17 @@ module controller (/*AUTOARG*/
 					WB_DATA_ALU: exe_fwd_a_ctrl = FWD_ALU_MEM;
 					WB_DATA_MEM: exe_fwd_a_ctrl = FWD_MEM;
 				endcase
-				// exe_fwd_a_ctrl = FWD_WB_MEM;
 			end
 		end
 		if (rt_used && addr_rt != 0) begin
 			if (regw_addr_exe == addr_rt && wb_wen_exe) begin
 				case (wb_data_src_exe)
 					WB_DATA_ALU: exe_fwd_b_ctrl = FWD_ALU_EXE;
-					WB_DATA_MEM: reg_stall=1;
+					WB_DATA_MEM: 
+					begin
+						reg_stall=~(inst[31:26]==INST_SW);
+						fwd_m=1;
+					end 
 				endcase
 			end
 			else if (regw_addr_mem == addr_rt && wb_wen_mem) begin

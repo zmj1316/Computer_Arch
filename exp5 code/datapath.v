@@ -63,7 +63,9 @@ module datapath (
 	output reg wb_data_src_exe,
 	output reg wb_data_src_mem,
 	input wire [1:0] exe_fwd_a_ctrl,
-	input wire [1:0] exe_fwd_b_ctrl
+	input wire [1:0] exe_fwd_b_ctrl,
+	input wire fwd_m,
+	output wire rs_rt_equal
 	// , output reg [31:0] regw_data_wb
 	
 	);
@@ -74,6 +76,7 @@ module datapath (
 	reg [2:0] pc_src_exe, pc_src_mem;
 	reg [1:0] exe_a_src_exe, exe_b_src_exe;
 	reg [3:0] exe_alu_oper_exe;
+	reg fwd_m_exe,fwd_m_mem;
 	reg mem_ren_exe, mem_ren_mem;
 	reg mem_wen_exe, mem_wen_mem;
 	// reg wb_data_src_exe, wb_data_src_mem, wb_data_src_wb;
@@ -247,6 +250,8 @@ module datapath (
 			mem_wen_exe <= 0;
 			wb_data_src_exe <= 0;
 			wb_wen_exe <= 0;
+
+			fwd_m_exe<=0;
 		end
 		else if (exe_en) begin
 			exe_valid <= id_valid;
@@ -261,51 +266,36 @@ module datapath (
 			// fwd_b_exe <= exe_fwd_b_ctrl;
 			// data_rs_fwd <= data_rs;
 			// data_rt_fwd <= data_rt;
-
+			data_rs_exe<=data_rs_fwd;
+			data_rt_exe<=data_rt_fwd;
 			data_imm_exe <= data_imm;
 			exe_alu_oper_exe <= exe_alu_oper_ctrl;
 			mem_ren_exe <= mem_ren_ctrl;
 			mem_wen_exe <= mem_wen_ctrl;
 			wb_data_src_exe <= wb_data_src_ctrl;
 			wb_wen_exe <= wb_wen_ctrl;
+			fwd_m_exe<=fwd_m;
 
-			case(exe_fwd_a_ctrl)
-				FWD_NO:		 	data_rs_exe<=data_rs;
-				FWD_ALU_EXE:	data_rs_exe<=alu_out_exe;
-				FWD_ALU_MEM:	data_rs_exe<=alu_out_mem;
-				FWD_MEM: 		data_rs_exe<=mem_din;
-			endcase
-
-			case(exe_fwd_b_ctrl)
-				FWD_NO:		 	data_rt_exe<=data_rt;
-				FWD_ALU_EXE:	data_rt_exe<=alu_out_exe;
-				FWD_ALU_MEM:	data_rt_exe<=alu_out_mem;
-				FWD_MEM: 		data_rt_exe<=mem_din;
-			endcase
 		end
 	end
 
 
-	// always @(*) begin
-		
-	// 	case (fwd_a_exe)
-	// 		// FWD_NO: data_rs_exe <= data_rs;
-	// 		FWD_ALU_EXE: data_rs_exe <= alu_out_mem;
-	// 		FWD_WB_MEM: data_rs_exe <= regw_data_wb;
-	// 		FWD_MEM: data_rs_exe <= mem_din;
-	// 		default: data_rs_exe <= data_rs_fwd;
-	// 	endcase
-	// 	// data_rt_exe <= data_rt;
-		
-	// 	case (fwd_b_exe)
-	// 		// FWD_NO: data_rt_exe <= data_rt;
-	// 		FWD_ALU_EXE: data_rt_exe <= alu_out_mem;
-	// 		FWD_WB_MEM: data_rt_exe <= regw_data_wb;
-	// 		FWD_MEM: data_rt_exe <= mem_din;
-	// 		default: data_rt_exe <= data_rt_fwd;
-	// 	endcase
-	// end
+	always @(*) begin
+			case(exe_fwd_a_ctrl)
+				FWD_NO:		 	data_rs_fwd<=data_rs;
+				FWD_ALU_EXE:	data_rs_fwd<=alu_out_exe;
+				FWD_ALU_MEM:	data_rs_fwd<=alu_out_mem;
+				FWD_MEM: 		data_rs_fwd<=mem_din;
+			endcase
 
+			case(exe_fwd_b_ctrl)
+				FWD_NO:		 	data_rt_fwd<=data_rt;
+				FWD_ALU_EXE:	data_rt_fwd<=alu_out_exe;
+				FWD_ALU_MEM:	data_rt_fwd<=alu_out_mem;
+				FWD_MEM: 		data_rt_fwd<=mem_din;
+			endcase
+	end
+	assign rs_rt_equal = (data_rs_fwd==data_rt_fwd);
 	always @(*) begin
 		is_branch_exe <= (pc_src_exe != PC_NEXT);
 
@@ -354,6 +344,7 @@ module datapath (
 			wb_data_src_mem <= 0;
 			wb_wen_mem <= 0;
 			rs_rt_equal_mem <= 0;
+			fwd_m_mem<=0;
 		end
 		else if (mem_en) begin
 			mem_valid <= exe_valid;
@@ -370,6 +361,7 @@ module datapath (
 			wb_data_src_mem <= wb_data_src_exe;
 			wb_wen_mem <= wb_wen_exe;
 			rs_rt_equal_mem <= rs_rt_equal_exe;
+			fwd_m_mem<=fwd_m_exe;
 		end
 	end
 	
@@ -381,8 +373,9 @@ module datapath (
 		case (pc_src_mem)
 			PC_JUMP: branch_target_mem <= {inst_addr_next_mem[31:28], inst_data_mem[25:0], 2'b0};
 			PC_JR: branch_target_mem <= data_rs_mem;
-			PC_BEQ: branch_target_mem <= rs_rt_equal_mem ? alu_out_mem : inst_addr_next_mem;
-			PC_BNE: branch_target_mem <= rs_rt_equal_mem ? inst_addr_next_mem : alu_out_mem;
+			// PC_BEQ: branch_target_mem <= rs_rt_equal_mem ? alu_out_mem : inst_addr_next_mem;
+			// PC_BNE: branch_target_mem <= rs_rt_equal_mem ? inst_addr_next_mem : alu_out_mem;
+			PC_BRANCH:branch_target_mem <=alu_out_mem;
 			default: branch_target_mem <= inst_addr_next_mem;  // will never used
 		endcase
 	end
@@ -391,7 +384,7 @@ module datapath (
 		mem_ren = mem_ren_mem,
 		mem_wen = mem_wen_mem,
 		mem_addr = alu_out_mem,
-		mem_dout = data_rt_mem;
+		mem_dout = fwd_m_mem?regw_data_wb:data_rt_mem;
 	
 	// WB stage
 	always @(posedge clk) begin
