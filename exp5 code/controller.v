@@ -263,7 +263,7 @@ module controller (/*AUTOARG*/
 	
 	always @(*) begin
 		branch_stall = 0;
-		if (pc_src != PC_NEXT || is_branch_exe || is_branch_mem)
+		if (pc_src != PC_NEXT)
 			branch_stall = 1;
 	end
 	

@@ -117,7 +117,8 @@ module datapath (
 	reg [31:0] mem_din_wb;
 	reg [4:0] regw_addr_wb;
 	reg [31:0] regw_data_wb;
-	
+	reg [31:0] data_rs_fwd;
+	reg [31:0] data_rt_fwd;
 	// debug
 	`ifdef DEBUG
 	wire [31:0] debug_data_reg;
@@ -173,10 +174,16 @@ module datapath (
 			inst_addr <= 0;
 		end
 		else if (if_en) begin
-			if (is_branch_mem)
-				inst_addr <= branch_target_mem;
-			else
-				inst_addr <= inst_addr_next;
+			// if (is_branch_mem)
+			// 	inst_addr <= branch_target_mem;
+			// else
+			// 	inst_addr <= inst_addr_next;
+			case (pc_src_ctrl)
+				PC_JUMP: inst_addr <= {inst_addr_next_id[31:28], inst_data_id[25:0], 2'b0};
+				PC_JR: inst_addr <= data_rs_fwd;
+				PC_BRANCH:inst_addr <=inst_addr_next_id + {data_imm[29:0], 2'b0};
+				PC_NEXT: inst_addr <= inst_addr_next;  // will never used
+			endcase
 		end
 	end
 	
@@ -227,8 +234,7 @@ module datapath (
 		);
 		
 
-	reg [31:0] data_rs_fwd;
-	reg [31:0] data_rt_fwd;
+
 	reg [1:0] fwd_a_exe;
 	reg [1:0] fwd_b_exe;
 	// EXE stage
@@ -368,7 +374,7 @@ module datapath (
 	end
 	
 	always @(*) begin
-		case (pc_src_mem)
+		case (pc_src_ctrl)
 			PC_JUMP: branch_target_mem <= {inst_addr_next_mem[31:28], inst_data_mem[25:0], 2'b0};
 			PC_JR: branch_target_mem <= data_rs_mem;
 			// PC_BEQ: branch_target_mem <= rs_rt_equal_mem ? alu_out_mem : inst_addr_next_mem;
