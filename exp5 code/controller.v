@@ -261,11 +261,11 @@ module controller (/*AUTOARG*/
 		end
 	end
 	
-	always @(*) begin
-		branch_stall = 0;
-		if (pc_src != PC_NEXT)
-			branch_stall = 1;
-	end
+	// always @(*) begin
+	// 	branch_stall = 0;
+	// 	if (pc_src != PC_NEXT)
+	// 		branch_stall = 1;
+	// end
 	
 	`ifdef DEBUG
 	reg debug_step_prev;
