@@ -65,7 +65,8 @@ module datapath (
 	input wire [1:0] exe_fwd_a_ctrl,
 	input wire [1:0] exe_fwd_b_ctrl,
 	input wire fwd_m,
-	output wire rs_rt_equal
+	output wire rs_rt_equal,
+	input wire sign
 	// , output reg [31:0] regw_data_wb
 	
 	);
@@ -91,6 +92,7 @@ module datapath (
 	reg [4:0] regw_addr_id;
 	wire [4:0] addr_rs, addr_rt, addr_rd;
 	wire [31:0] data_rs, data_rt, data_imm;
+	reg sign_id;
 	
 	// EXE signals
 	reg [31:0] inst_addr_exe;
@@ -100,6 +102,7 @@ module datapath (
 	reg [31:0] opa_exe, opb_exe;
 	wire [31:0] alu_out_exe;
 	wire rs_rt_equal_exe;
+	reg sign_exe;
 	
 	// MEM signals
 	reg [31:0] inst_addr_mem;
@@ -200,6 +203,7 @@ module datapath (
 			inst_addr_id <= inst_addr;
 			inst_data_id <= inst_data;
 			inst_addr_next_id <= inst_addr_next;
+			sign_id<=sign;
 		end
 	end
 	
@@ -279,7 +283,7 @@ module datapath (
 			wb_data_src_exe <= wb_data_src_ctrl;
 			wb_wen_exe <= wb_wen_ctrl;
 			fwd_m_exe<=fwd_m;
-
+			sign_exe<=sign;
 		end
 	end
 
@@ -329,7 +333,8 @@ module datapath (
 		.a(opa_exe),
 		.b(opb_exe),
 		.oper(exe_alu_oper_exe),
-		.result(alu_out_exe)
+		.result(alu_out_exe),
+		.sign(sign_exe)
 		);
 	
 	// MEM stage
