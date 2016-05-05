@@ -315,6 +315,7 @@ module datapath (
 			EXE_A_RS: opa_exe = data_rs_exe;
 			EXE_A_LINK: opa_exe = inst_addr_next_exe;
 			EXE_A_BRANCH: opa_exe = inst_addr_next_exe;
+			EXE_A_SA: opa_exe = inst_data_exe[10:6];
 		endcase
 		case (exe_b_src_exe)
 			EXE_B_RT: opb_exe = data_rt_exe;

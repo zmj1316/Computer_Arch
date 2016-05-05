@@ -6,7 +6,8 @@
  * Author: Zhao, Hongyu  <power_zhy@foxmail.com>
  */
 module alu (
-	input wire [31:0] a, b,  // two operands
+	input wire  [31:0] a,  // two operands
+	input wire signed [31:0] b,  // two operands
 	input wire [3:0] oper,  // operation type
 	input wire sign,
 	output reg [31:0] result  // calculation result
@@ -42,10 +43,10 @@ module alu (
 				result = {b[15:0],16'h0};
 			end
 			EXE_ALU_SL: begin
-				result = sign?{{31{b[31]}},b[31:0]}<<a:b<<a;
+				result = b<<a;
 			end
 			EXE_ALU_SR: begin
-				result = sign?{{31{b[31]}},b[31:0]}>>a:b>>a;
+				result = sign?b>>>a:b>>a;
 			end
 		endcase
 	end
