@@ -319,7 +319,7 @@ module datapath (
 		case (exe_b_src_exe)
 			EXE_B_RT: opb_exe = data_rt_exe;
 			EXE_B_IMM: opb_exe = data_imm_exe;
-			EXE_B_LINK: opb_exe = 32'h0;  // linked address is the next one of current instruction
+			EXE_B_LINK: opb_exe = 32'h4;  // linked address is the next one of current instruction
 			EXE_B_BRANCH: opb_exe = {data_imm_exe,2'b00};
 		endcase
 	end

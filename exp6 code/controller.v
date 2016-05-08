@@ -260,7 +260,7 @@ module controller (/*AUTOARG*/
 				rs_used = 1;
 			end
 			INST_ADDIU: begin
-				imm_ext = 0;
+				imm_ext = 1;
 				exe_b_src = EXE_B_IMM;
 				exe_alu_oper = EXE_ALU_ADD;
 				wb_addr_src = WB_ADDR_RT;

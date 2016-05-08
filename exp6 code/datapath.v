@@ -270,10 +270,6 @@ module datapath (
 			pc_src_exe <= pc_src_ctrl;
 			exe_a_src_exe <= exe_a_src_ctrl;
 			exe_b_src_exe <= exe_b_src_ctrl;
-			// fwd_a_exe <= exe_fwd_a_ctrl;
-			// fwd_b_exe <= exe_fwd_b_ctrl;
-			// data_rs_fwd <= data_rs;
-			// data_rt_fwd <= data_rt;
 			data_rs_exe<=data_rs_fwd;
 			data_rt_exe<=data_rt_fwd;
 			data_imm_exe <= data_imm;
@@ -324,7 +320,7 @@ module datapath (
 		case (exe_b_src_exe)
 			EXE_B_RT: opb_exe = data_rt_exe;
 			EXE_B_IMM: opb_exe = data_imm_exe;
-			EXE_B_LINK: opb_exe = 32'h0;  // linked address is the next one of current instruction
+			EXE_B_LINK: opb_exe = 32'h4;  // linked address is the next one of current instruction
 			EXE_B_BRANCH: opb_exe = {data_imm_exe,2'b00};
 		endcase
 	end

@@ -45,7 +45,7 @@ module alu (
 				result = b<<a;
 			end
 			EXE_ALU_SR: begin
-				result = sign?{{32{b[31]}},b[31:0]}>>a:b>>a;
+				result = sign?$signed(b)>>>a:b>>a;
 			end
 		endcase
 	end
