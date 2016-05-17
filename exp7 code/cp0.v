@@ -29,6 +29,13 @@ module cp0 (
 	
 	reg [31:0] cpr[0:31];
 	
+	integer i;
+	
+	initial begin
+		for (i=0; i<32; i = i+1)
+			cpr[i] = 32'b0;
+	end
+	
 	always @(posedge clk) begin
 		if (rst)
 			ir_wait <= 0;
@@ -59,21 +66,19 @@ module cp0 (
 				cpr[addr_w] <= data_w;
 			EXE_CP0_ERET: eret <= 1;		
 		endcase
-	end
-
-	// Exception Program Counter Register
-	always @(posedge clk) begin
-		if (ir) begin
-			epc <= ret_addr;
-		end
-	end
+	end	
 	
 	// jump determination
-	always @(posedge clk) begin
+	always @(*) begin
 		jump_en <= 0;
 		if (eret) begin
 			jump_en <= 1;
 			jump_addr <= epc;
+		end
+		if (ir) begin
+			jump_en <= 1;
+			jump_addr <= INT_HAND;
+			epc <= ret_addr;
 		end
 	end
 

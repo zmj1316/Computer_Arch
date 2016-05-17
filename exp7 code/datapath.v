@@ -101,7 +101,7 @@ module datapath (
 	wire [31:0] cp0_data_w;
 	wire [31:0] jump_addr;
 	wire jump_en;
-	wire ret_addr;
+	wire [31:0] ret_addr;
 	
 	// EXE signals
 	reg [31:0] inst_addr_exe;
@@ -205,7 +205,7 @@ module datapath (
 	
 	// ID stage
 	always @(posedge clk) begin
-		if (id_rst) begin
+		if (id_rst || jump_en) begin
 			id_valid <= 0;
 			inst_addr_id <= 0;
 			inst_data_id <= 0;
@@ -350,10 +350,10 @@ module datapath (
 		
 
 	
-	assign 	ret_addr = pc_src_ctrl == PC_NEXT ? inst_addr_id : inst_addr;
+	assign 	ret_addr = pc_src_ctrl == PC_NEXT ? inst_addr : inst_addr_id;
 	assign 	cp0_addr_r = addr_rd,				
-				cp0_addr_w = addr_rd,
-				cp0_data_w = addr_rt;
+				cp0_addr_w = addr_rt,
+				cp0_data_w = data_rt_fwd;
 	
 	cp0 CP0 (
 		.clk(clk),  // main clock

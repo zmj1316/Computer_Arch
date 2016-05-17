@@ -348,6 +348,7 @@ module controller (/*AUTOARG*/
 							cp_oper = EXE_CP_NONE;
 							exe_a_src = EXE_A_CP;
 							exe_b_src = EXE_B_CP;
+							wb_addr_src = WB_ADDR_RT;
 							wb_wen = 1;							
 						end
 						CP_FUNC_MT: begin
