@@ -135,7 +135,7 @@ module datapath (
 	`ifdef DEBUG
 	wire [31:0] debug_data_reg;
 	reg [31:0] debug_data_signal;
-	
+	wire irout;
 	always @(posedge clk) begin
 		case (debug_addr[4:0])
 			0: debug_data_signal <= inst_addr;
@@ -164,6 +164,9 @@ module datapath (
 			23: debug_data_signal <= regw_data_wb;
 			24: debug_data_signal <= data_rt_exe;
 			25: debug_data_signal <= alu_out_wb;
+			29: debug_data_signal <= irout;
+			30: debug_data_signal <= ir_in;
+			31: debug_data_signal <= jump_en;
 			default: debug_data_signal <= 32'hFFFF_FFFF;
 		endcase
 	end
@@ -368,6 +371,7 @@ module datapath (
 		.ret_addr(ret_addr),
 		.jump_en(jump_en),
 		.jump_addr(jump_addr)
+		,.irout(irout)
 		);	
 	
 	// MEM stage

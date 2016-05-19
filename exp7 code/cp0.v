@@ -17,6 +17,9 @@ module cp0 (
 	input wire [31:0] ret_addr,  // target instruction address to store when interrupt occurred
 	output reg jump_en,  // force jump enable signal when interrupt authorised or ERET occurred
 	output reg [31:0] jump_addr  // target instruction address to jump to
+
+	,
+	output wire irout
 	);
 	
 	`include "mips_define.vh"
@@ -24,6 +27,7 @@ module cp0 (
 	// interrupt determination
 	wire ir;
 	reg ir_wait = 0, ir_valid = 1;
+	assign irout = ir_valid;
 	reg eret = 0;
 	reg [31:0] epc;
 	
@@ -53,32 +57,46 @@ module cp0 (
 		else if (ir)
 			ir_valid <= 0;  // prevent exception reenter
 	end
-	
 	assign ir = ir_en & ir_wait & ir_valid;
 
+	reg irj = 0;
 	// Exception Handler Base Register
 	always @(posedge clk) begin
-		eret <= 0;
-		case (oper)
-			EXE_CP_NONE: 
-				data_r <= cpr[addr_r];
-			EXE_CP_STORE:
-				cpr[addr_w] <= data_w;
-			EXE_CP0_ERET: eret <= 1;		
-		endcase
+		if(ir)begin
+			jump_addr <= 32'h20;
+			epc <= ret_addr;
+			// jump_en <= 1;
+			irj <= 1;
+		end
+		else begin
+			irj<=0;
+			case (oper)
+				EXE_CP_NONE: begin
+					data_r <= cpr[addr_r];
+					// jump_en <= 0;
+				end
+				EXE_CP_STORE:begin
+					cpr[addr_w] <= data_w;
+					// jump_en <= 0;
+				end
+				EXE_CP0_ERET: begin
+					eret <= 1;	
+					jump_addr <= epc;
+					// jump_en <= 1;
+				end
+			endcase
+		end
 	end	
 	
 	// jump determination
+
 	always @(*) begin
-		jump_en <= 0;
-		if (eret) begin
-			jump_en <= 1;
-			jump_addr <= epc;
+		jump_en = 0;
+		if (irj) begin
+			jump_en = 1;
 		end
-		if (ir) begin
-			jump_en <= 1;
-			jump_addr <= INT_HAND;
-			epc <= ret_addr;
+		if (oper == EXE_CP0_ERET) begin
+			jump_en = 1;
 		end
 	end
 

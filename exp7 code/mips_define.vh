@@ -110,8 +110,8 @@ localparam  // bit 31:26 for instruction type
 	INST_XORI       = 6'b001110,
 	INST_LUI        = 6'b001111,
 	INST_CP0        = 6'b010000,  // bit 24:21 for function type when bit 25 is not set, bit 5:0 for co type when bit 25 is set
-	CP_FUNC_MF     = 4'b0000,
-	CP_FUNC_MT     = 4'b0100,
+	CP_FUNC_MF     = 5'b00000,
+	CP_FUNC_MT     = 5'b00100,
 	CP0_CO_ERET     = 6'b011000,
 	INST_LB         = 6'b100000,
 	INST_LH         = 6'b100001,
