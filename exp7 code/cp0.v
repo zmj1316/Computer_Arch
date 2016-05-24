@@ -85,11 +85,14 @@ module cp0 (
 		if (ir) begin
 			jump_addr = 32'h20;
 			jump_en = 1;
-		end
+			eret = 0;
+		end else
 		if (oper == EXE_CP0_ERET) begin
 			jump_addr = epc;
 			jump_en = 1;
-		end
+			eret = 1;
+		end else 
+			eret =0;
 	end
 
 endmodule
