@@ -37,17 +37,17 @@ module sim_mips;
 		#100 rst = 1;
 		#100 rst = 0;
 
-		#90
+		#91
 		interrupter = 1;
 		#20
 		interrupter = 0;
 		
-		#300
+		#301
 		interrupter = 1;
 		#20
 		interrupter = 0;
 		
-		#380
+		#381
 		interrupter = 1;
 		#20
 		interrupter = 0;

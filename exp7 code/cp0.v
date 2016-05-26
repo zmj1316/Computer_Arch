@@ -29,10 +29,13 @@ module cp0 (
 	reg ir_wait = 0, ir_valid = 1;
 	assign irout = ir_valid;
 	reg eret = 0;
-	reg [31:0] epc;
-	reg [31:0] ehbr;
+	wire [31:0] epc;
+	wire [31:0] ehbr;
 	
-	reg [31:0] cpr[0:31];
+	reg [31:0] cpr[31:0];
+	
+	assign epc = cpr[2];
+	assign ehbr = cpr[1];
 	
 	integer i;
 	
@@ -63,30 +66,20 @@ module cp0 (
 	// Exception Handler Base Register
 	always @(posedge clk) begin
 		if(ir)begin
-			epc <= ret_addr;
+			cpr[2] <= ret_addr;
+
 		end
 		else begin
 			case (oper)
 				EXE_CP_NONE: begin
-					if (addr_r == 5'h1) begin
-						data_r <= ehbr;
-					end else if (addr_r == 5'h2) begin
-						data_r <= epc;
-					end else begin
-						data_r <= cpr[addr_r];
-					end
-					// jump_en <= 0;
+					data_r <= cpr[addr_r];
 				end
 				EXE_CP_STORE:begin
-					if (addr_r == 5'h1) begin
-						ehbr <= data_w;
-					end else if (addr_r == 5'h2) begin
-						epc <= data_w;
-					end else begin
-						cpr[addr_r] <= data_w;
-					end
 					cpr[addr_w] <= data_w;
 					// jump_en <= 0;
+				end
+				EXE_CP0_ERET:begin
+					jump_addr = cpr[2];
 				end
 			endcase
 		end
@@ -97,7 +90,7 @@ module cp0 (
 	always @(*) begin
 		jump_en = 0;
 		if (ir) begin
-			jump_addr = 32'h20;
+			jump_addr = ehbr;
 			jump_en = 1;
 			eret = 0;
 		end else
