@@ -116,7 +116,9 @@ module mips_top (
 			3: disp_addr = disp_addr3;
 		endcase
 	end
-	
+	reg prev = 0;
+	always@(posedge clk_cpu)
+	  prev = btn_interrupt;
 	display DISPLAY (
 		.clk(clk_disp),
 		.rst(rst_all),
@@ -138,7 +140,7 @@ module mips_top (
 		`endif
 		.clk(clk_cpu),
 		.rst(rst_all),
-		.interrupter(btn_interrupt)
+		.interrupter(btn_interrupt&&!prev)
 		);
 	
 endmodule
