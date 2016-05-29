@@ -28,6 +28,9 @@ module mips (
 	wire [31:0] mem_data_r;
 	wire [31:0] mem_data_w;
 	
+	wire rom_rst,rom_cs,rom_stall;
+	wire ram_rst,ram_cs,ram_stall;
+
 	// mips core
 	mips_core MIPS_CORE (
 		.clk(clk),
@@ -46,23 +49,36 @@ module mips (
 		.mem_addr(mem_addr),
 		.mem_dout(mem_data_w),
 		.mem_din(mem_data_r),
-		.ir_in(interrupter)
+		.ir_in(interrupter),
+		.rom_rst(rom_rst),
+		.rom_cs(rom_cs),
+		.ram_rst(ram_rst),
+		.ram_cs(ram_cs),
+		.rom_stall(rom_stall),
+		.ram_stall(ram_stall)
 		);
 	
 	inst_rom INST_ROM (
 		.clk(clk),
+		.rst(rom_rst),
+		.cs(rom_cs),
+
 		.addr({2'b0, inst_addr[31:2]}),
 		//.addr(inst_addr),
-		.dout(inst_data)
+		.dout(inst_data),
+		.stall(rom_stall)
 		);
 	
 	data_ram DATA_RAM (
 		.clk(clk),
 		.we(mem_wen),
+		.rst(ram_rst),
+		.cs(ram_cs),
 		.addr({2'b0, mem_addr[31:2]}),
 		//.addr(mem_addr),
 		.din(mem_data_w),
-		.dout(mem_data_r)
+		.dout(mem_data_r),
+		.stall(ram_stall)
 		);
 	
 endmodule

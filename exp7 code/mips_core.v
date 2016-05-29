@@ -25,7 +25,10 @@ module mips_core (
 	output wire [31:0] mem_addr,  // address of memory
 	output wire [31:0] mem_dout,  // data writing to memory
 	input wire [31:0] mem_din,  // data read from memory
-	input wire ir_in
+	input wire ir_in,
+
+	output rom_rst,rom_cs,ram_rst,ram_cs,
+	input rom_stall,ram_stall
 	);
 	
 	// control signals
@@ -108,6 +111,12 @@ module mips_core (
 		.rs_rt_equal(rs_rt_equal),
 		.alu_sign(alu_sign),
 		.cp_oper(cp_oper)
+		,.rom_stall(rom_stall)
+		,.rom_rst(rom_rst)
+		,.rom_cs(rom_cs)
+		,.ram_stall(ram_stall)
+		,.ram_cs(ram_cs)
+		,.ram_rst(ram_rst)
 	);
 	
 	// data path

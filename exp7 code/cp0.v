@@ -34,8 +34,8 @@ module cp0 (
 	
 	reg [31:0] cpr[31:0];
 	
-	assign epc = cpr[2];
-	assign ehbr = cpr[1];
+	assign epc = cpr[CP0_EPCR];
+	assign ehbr = cpr[CP0_EHBR];
 	
 	integer i;
 	
@@ -65,9 +65,9 @@ module cp0 (
 
 	// Exception Handler Base Register
 	always @(posedge clk) begin
+		cpr[CP0_TCR]<=cpr[CP0_TCR]+1;
 		if(ir)begin
 			cpr[2] <= ret_addr;
-
 		end
 		else begin
 			case (oper)
@@ -77,9 +77,6 @@ module cp0 (
 				EXE_CP_STORE:begin
 					cpr[addr_w] <= data_w;
 					// jump_en <= 0;
-				end
-				EXE_CP0_ERET:begin
-					jump_addr = cpr[2];
 				end
 			endcase
 		end

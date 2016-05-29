@@ -59,6 +59,11 @@ module controller (/*AUTOARG*/
 	input wire rs_rt_equal,
 	output reg alu_sign,
 	output reg [1:0] cp_oper
+	,output reg rom_rst
+	,output reg rom_cs,
+	output reg ram_rst,
+	output reg ram_cs,
+	input rom_stall,ram_stall
 	);
 	
 	`include "mips_define.vh"
@@ -82,6 +87,9 @@ module controller (/*AUTOARG*/
 		alu_sign = 0;
 		imm_ext = 0;
 		cp_oper=EXE_CP_NONE;
+		ram_rst=0;
+		rom_rst=0;
+		rom_cs=1;
 		case (inst[31:26])
 			INST_R: begin
 				case (inst[5:0])
@@ -306,6 +314,7 @@ module controller (/*AUTOARG*/
 				wb_data_src = WB_DATA_MEM;
 				wb_wen = 1;
 				rs_used = 1;
+				ram_cs =1;
 			end
 			INST_SW: begin
 				imm_ext = 1;
@@ -314,6 +323,7 @@ module controller (/*AUTOARG*/
 				mem_wen = 1;
 				rs_used = 1;
 				rt_used = 1;
+				ram_cs = 1;
 			end
 			INST_LUI: begin
 				exe_b_src = EXE_B_IMM;
@@ -460,7 +470,7 @@ module controller (/*AUTOARG*/
 		end
 		`endif
 		// this stall indicate that ID is waiting for previous instruction, should insert NOPs between ID and EXE.
-		else if (reg_stall) begin
+		else if (reg_stall||ram_stall||rom_stall) begin
 			if_en = 0;
 			id_en = 0;
 			exe_rst = 1;
@@ -468,6 +478,10 @@ module controller (/*AUTOARG*/
 		// this stall indicate that a jump/branch instruction is running, so that 3 NOP should be inserted between IF and ID
 		else if (branch_stall) begin
 			id_rst = 1;
+		end
+
+		if (ram_stall) begin
+			wb_rst = 1;
 		end
 	end
 	
