@@ -354,8 +354,8 @@ module datapath (
 
 	
 	assign 	ret_addr = pc_src_ctrl == PC_NEXT ? inst_addr : inst_addr_id;
-	assign 	cp0_addr_r = addr_rd,				
-				cp0_addr_w = addr_rt,
+	assign 	cp0_addr_r = addr_rt,				
+				cp0_addr_w = addr_rd,
 				cp0_data_w = data_rt_fwd;
 	
 	cp0 CP0 (
