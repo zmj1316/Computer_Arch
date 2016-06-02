@@ -183,18 +183,21 @@ module datapath (
 		if_valid = ~if_rst & if_en;
 		inst_ren = ~if_rst;
 	end
-	
+	reg jump_en_LATCH = 0;
+	reg [31:0] jump_addr_LATCH = 0;
 	always @(posedge clk) begin
 		if (if_rst) begin
 			inst_addr <= 0;
+
 		end
 		else if (if_en) begin
 			// if (is_branch_mem)
 			// 	inst_addr <= branch_target_mem;
 			// else
 			// 	inst_addr <= inst_addr_next;
-			if (jump_en) begin
-				inst_addr <= jump_addr;
+			if (jump_en_LATCH) begin
+				inst_addr <= jump_addr_LATCH;
+				jump_en_LATCH<=0;
 			end else begin
 				case (pc_src_ctrl)
 					PC_JUMP: inst_addr <= {inst_addr_next_id[31:28], inst_data_id[25:0], 2'b0};
@@ -203,6 +206,12 @@ module datapath (
 					PC_NEXT: inst_addr <= inst_addr_next;  
 				endcase
 			end
+		end
+		else begin
+			jump_en_LATCH <= jump_en_LATCH;
+			if(jump_en)
+				jump_en_LATCH <= 1;
+				jump_addr_LATCH <= jump_addr;
 		end
 	end
 	
@@ -365,14 +374,14 @@ module datapath (
 		.data_r(cp0_data_r),
 		.addr_w(cp0_addr_w),
 		.data_w(cp0_data_w),
-		.rst(exe_rst),
+		.rst(0),
 		.ir_en(1'b1),
 		.ir_in(ir_in),
 		.ret_addr(ret_addr),
 		.jump_en(jump_en),
 		.jump_addr(jump_addr)
 		,.irout(irout)
-		);	
+		);
 	
 	// MEM stage
 	always @(posedge clk) begin
