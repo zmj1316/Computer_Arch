@@ -88,6 +88,7 @@ module controller (/*AUTOARG*/
 		imm_ext = 0;
 		cp_oper=EXE_CP_NONE;
 		ram_rst=0;
+		ram_cs=0;
 		rom_rst=0;
 		rom_cs=1;
 		case (inst[31:26])

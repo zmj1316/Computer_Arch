@@ -7,6 +7,7 @@
  */
 module datapath (
 	input wire clk,  // main clock
+	input wire rst,
 	// debug
 	`ifdef DEBUG
 	input wire [5:0] debug_addr,  // debug address
@@ -163,8 +164,7 @@ module datapath (
 			22: debug_data_signal <= {27'b0, regw_addr_wb};
 			23: debug_data_signal <= regw_data_wb;
 			24: debug_data_signal <= data_rt_exe;
-			25: debug_data_signal <= alu_out_wb;
-			29: debug_data_signal <= irout;
+			25: debug_data_signal <= alu_out_mem;
 			30: debug_data_signal <= ir_in;
 			31: debug_data_signal <= jump_en;
 			default: debug_data_signal <= 32'hFFFF_FFFF;
@@ -283,8 +283,10 @@ module datapath (
 			mem_wen_exe <= 0;
 			wb_data_src_exe <= 0;
 			wb_wen_exe <= 0;
-
+			data_rs_exe<=0;
+			data_rt_exe<=0;
 			fwd_m_exe<=0;
+			sign_exe<=0;
 		end
 		else if (exe_en) begin
 			exe_valid <= id_valid;
@@ -363,18 +365,18 @@ module datapath (
 
 	
 	assign 	ret_addr = pc_src_ctrl == PC_NEXT ? inst_addr : inst_addr_id;
-	assign 	cp0_addr_r = addr_rt,				
+	assign 	cp0_addr_r = addr_rd,				
 				cp0_addr_w = addr_rd,
 				cp0_data_w = data_rt_fwd;
 	
 	cp0 CP0 (
 		.clk(clk),  // main clock
+		.rst(rst),
 		.oper(cp_oper),
 		.addr_r(cp0_addr_r),
 		.data_r(cp0_data_r),
 		.addr_w(cp0_addr_w),
 		.data_w(cp0_data_w),
-		.rst(0),
 		.ir_en(1'b1),
 		.ir_in(ir_in),
 		.ret_addr(ret_addr),

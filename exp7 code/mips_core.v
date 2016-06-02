@@ -122,6 +122,7 @@ module mips_core (
 	// data path
 	datapath DATAPATH (
 		.clk(clk),
+		.rst(rst),
 		`ifdef DEBUG
 		.debug_addr(debug_addr[5:0]),
 		.debug_data(debug_data),

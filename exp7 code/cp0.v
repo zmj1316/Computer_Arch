@@ -31,12 +31,12 @@ module cp0 (
 	reg eret = 0;
 	wire [31:0] epc;
 	wire [31:0] ehbr;
-	
+	wire [31:0] cpr9;
 	reg [31:0] cpr[31:0];
 	
 	assign epc = cpr[CP0_EPCR];
 	assign ehbr = cpr[CP0_EHBR];
-	
+	assign cpr9 = cpr[9] ;
 	integer i;
 	
 	initial begin
@@ -65,21 +65,31 @@ module cp0 (
 
 	// Exception Handler Base Register
 	always @(posedge clk) begin
-		cpr[CP0_TCR]<=cpr[CP0_TCR]+1;
-		if(ir)begin
-			cpr[2] <= ret_addr;
+		if (rst) begin
+			for (i=0; i<32; i = i+1)
+				cpr[i] <= 32'b0;
 		end
 		else begin
-			case (oper)
-				EXE_CP_NONE: begin
-					data_r <= cpr[addr_r];
-				end
-				EXE_CP_STORE:begin
-					cpr[addr_w] <= data_w;
-					// jump_en <= 0;
-				end
-			endcase
+			cpr[CP0_TCR]<=cpr9+1;
+			if(ir)begin
+				cpr[2] <= ret_addr;
+			end
+			else begin
+				case (oper)
+					EXE_CP_NONE: begin
+					if (addr_r==9)
+						data_r <= cpr9;
+					else
+						data_r <= cpr[addr_r];
+					end
+					EXE_CP_STORE:begin
+						cpr[addr_w] <= data_w;
+						// jump_en <= 0;
+					end
+				endcase
+			end
 		end
+
 	end	
 	
 	// jump determination
