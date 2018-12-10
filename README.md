@@ -1,1 +1,2 @@
-# 
+# DONT CHEAT!
+# DO IT BY YOURSELF!
